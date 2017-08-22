@@ -1,70 +1,56 @@
 //
-//  ViewController.m
+//  DBTool.m
 //  FMDBDemo
 //
-//  Created by WJ on 2017/8/21.
+//  Created by WJ on 2017/8/22.
 //  Copyright © 2017年 WJ. All rights reserved.
 //
 
-#import "ViewController.h"
 #import "DBTool.h"
-#import "SecondViewController.h"
 
-@interface ViewController ()
+@interface DBTool ()
 
-@property (nonatomic, strong)FMDatabase *db;
+@property (nonatomic, strong) FMDatabase *db;
 @property (nonatomic, strong)NSMutableArray *mArr;
-@property (nonatomic, assign)NSInteger count;
-@property (nonatomic, strong)NSMutableDictionary *mdic;
-@property (nonatomic, strong)DBTool *tool;
 
 @end
 
-@implementation ViewController
+@implementation DBTool
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    self.view.backgroundColor = [UIColor purpleColor];
-    self.title = @"First";
-    
-    // Do any additional setup after loading the view, typically from a nib.
-    
-//    NSString *path;
-//    path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-//    
-//    path = [path stringByAppendingString:@"/mysql.sqlite"];
-//    
-//    NSLog(@"path is : %@", path);
-//    
-//    self.db = [FMDatabase databaseWithPath:path];
-//    [self.db open];
-//    
-//    // 建表之前一定要确保数据库为打开状态
-//    BOOL success = [self.db executeUpdate:@"create table if not exists person (Id INTEGER PRIMARY KEY AUTOINCREMENT, name text, sex text)"];
-//    
-//    NSLog(@"success is %d", success);
-//    
-////    [self createDatas];
-//    
-//    [self selectAllUserWithTable_name:@"person" obj:3];
-    
-    if (!self.tool) {
-        self.tool = [DBTool shareDataBase];
-    }
-    
-//    [self.tool createDatas];
-    
-    NSLog(@"%p",self.tool);
-    
-    
-    
++ (instancetype)shareDataBase{
+
+    static DBTool *tool = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        tool = [[DBTool alloc] init];
+        
+    });
+    return tool;
 }
 
-- (void)updateUserWithTableName:(NSString *)table_name{
+- (instancetype)init{
+    if (self = [super init]) {
+        if (!self.db) {
+            
+            NSString *path;
+            path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+            path = [path stringByAppendingString:@"/sql.sqlite"];
+            self.db = [FMDatabase databaseWithPath:path];
+            [self.db open];
+            [self createtable];
+        }
+    }
+    return self;
+}
+
+- (void)createtable{
+    // 建表之前一定要确保数据库为打开状态
+    BOOL success = [self.db executeUpdate:@"create table if not exists person (Id INTEGER PRIMARY KEY AUTOINCREMENT, name text, sex text)"];
     
+    NSLog(@"success is %d", success);
     
-    
+    [self createDatas];
+
 }
 
 - (void)selectAllUserWithTable_name:(NSString *)tableName obj:(int)col{
@@ -72,14 +58,14 @@
     
     NSMutableArray *arrObj = [NSMutableArray array];
     FMResultSet *set = [self.db executeQuery:strSelect];
-//    NSLog(@" set is %@", set);
+    //    NSLog(@" set is %@", set);
     while ([set next]) {
         
         int total = [set intForColumnIndex:0];
         NSLog(@"total is %d",total);
         
         
-//        set 
+        //        set
         
         NSMutableDictionary *dic = [NSMutableDictionary dictionary];
         
@@ -98,18 +84,18 @@
 }
 
 - (void)createDatas{
-//    NSDictionary *dic = @{@"Id":@2, @"name":@"张三",  @"sex":@"true"};
-//    [self.mArr addObject:dic];
-//    
-//    NSDictionary *dic1 = @{ @"name":@"李四", @"sex":@"false"};
-//    [self.mArr addObject:dic1];
-    
-    NSDictionary *dic = @{@"Id":@2, @"name":@"王五"};
+    NSDictionary *dic = @{ @"name":@"张三",  @"sex":@"true"};
     [self.mArr addObject:dic];
-    
-    NSDictionary *dic1 = @{ @"name":@"老魏", @"sex":@"false"};
-    [self.mArr addObject:dic1];
 
+    NSDictionary *dic1 = @{ @"name":@"李四", @"sex":@"false"};
+    [self.mArr addObject:dic1];
+    
+    NSDictionary *dic2 = @{ @"name":@"王五"};
+    [self.mArr addObject:dic2];
+    
+    NSDictionary *dic3 = @{ @"name":@"老魏", @"sex":@"false"};
+    [self.mArr addObject:dic3];
+    
     
     for (NSDictionary *dicTemp in self.mArr) {
         [self insertIntoDatabaseInfo:dicTemp table_name:@"person"];
@@ -150,14 +136,6 @@
     
 }
 
-- (IBAction)clickButton:(id)sender {
-    
-    SecondViewController *vc = [SecondViewController new];
-    [self.navigationController pushViewController:vc animated:YES];
-    
-}
-
-
 - (NSMutableArray *)mArr{
     if (!_mArr) {
         _mArr = [NSMutableArray array];
@@ -165,12 +143,7 @@
     return _mArr;
 }
 
-- (NSMutableDictionary *)mdic{
-    if (!_mdic) {
-        _mdic = [NSMutableDictionary dictionary];
-    }
-    return _mdic;
-}
+
 
 
 
