@@ -49,11 +49,11 @@
     
     NSLog(@"success is %d", success);
     
-    [self createDatas];
+//    [self createDatas];
 
 }
 
-- (void)selectAllUserWithTable_name:(NSString *)tableName obj:(int)col{
+- (void)selectAllUserWithTable_name:(NSString *)tableName{
     NSString *strSelect = [NSString stringWithFormat:@"select *from %@",tableName];
     
     NSMutableArray *arrObj = [NSMutableArray array];
@@ -74,6 +74,7 @@
             NSString *name = [set columnNameForIndex:i];
             NSString *value = [NSString stringWithFormat:@"%@",[set objectForColumn:name]];;
             [dic setObject:value forKey:name];
+            NSLog(@"%@: %@",name, value);
         }
         
         [arrObj addObject:dic];

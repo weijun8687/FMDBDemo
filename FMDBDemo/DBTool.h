@@ -11,6 +11,10 @@
 @interface DBTool : NSObject
 
 +(instancetype)shareDataBase;
-
+// 创建数据
 -(void) createDatas;
+// 
+//查询表中的所有数据
+- (void)selectAllUserWithTable_name:(NSString *)tableName;
+
 @end
